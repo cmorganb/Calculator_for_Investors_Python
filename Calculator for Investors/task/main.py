@@ -1,4 +1,6 @@
 from menu_stack import MenuItem, MenuStack
+from database import get_session, get_session_context
+from models import Companies, Financial
 
 def show_crud_menu():
     crud_items = [
@@ -21,23 +23,74 @@ def show_top_ten_menu():
     menu_stack.push_menu(top_ten_items, "TOP TEN", )
 
 def create_company():
-    print("Not implemented!")
+    ticker = input("Enter ticker (in the format 'MOON'):\n")
+    name = input("Enter company (in the format 'Moon Corp'):\n")
+    sector = input("Enter industries (in the format 'Technology'):\n")
+
+    #call function to add company
+
+    ebitda = input("Enter ebitda (in the format '987654321'):\n")
+    sales = input("Enter sales (in the format '987654321'):\n")
+    net_profit = input("Enter net profit (in the format '987654321'):\n")
+    market_price = input("Enter market price (in the format '987654321'):\n")
+    net_debt = input("Enter net_debt (in the format '987654321'):\n")
+    assets = input("Enter assets (in the format '987654321'):\n")
+    equity = input("Enter equity (in the format '987654321'):\n")
+    cash_equivalents = input("Enter cash equivalents (in the format '987654321'):\n")
+    liabilities = input("Enter liabilities (in the format '987654321'):\n")
+
+    #call function to add financial data
+
+    print("Company created successfully!")
+
     menu_stack.pop_menu()
 
 def read_company():
-    print("Not implemented!")
+    search_term = input("Enter company name:\n")
+
+    #call searching function
+    #display search results menu
+
+
     menu_stack.pop_menu()
 
 def update_company():
-    print("Not implemented!")
+    search_term = input("Enter company name:\n")
+
+    #call searching function
+    #display search results menu
+
+    ebitda = input("Enter ebitda (in the format '987654321'):\n")
+    sales = input("Enter sales (in the format '987654321'):\n")
+    net_profit = input("Enter net profit (in the format '987654321'):\n")
+    market_price = input("Enter market price (in the format '987654321'):\n")
+    net_debt = input("Enter net_debt (in the format '987654321'):\n")
+    assets = input("Enter assets (in the format '987654321'):\n")
+    equity = input("Enter equity (in the format '987654321'):\n")
+    cash_equivalents = input("Enter cash equivalents (in the format '987654321'):\n")
+    liabilities = input("Enter liabilities (in the format '987654321'):\n")
+
+    #call function to update financial data
+
+    print("Company updated successfully!")
+
     menu_stack.pop_menu()
 
 def delete_company():
-    print("Not implemented!")
+    search_term = input("Enter company name:\n")
+
+    #call searching function
+    #display search results menu
+
+    #call fucntion to delete company
+
+    print("Company deleted successfully!")
+
     menu_stack.pop_menu()
 
 def list_all_companies():
-    print("Not implemented!")
+    #call function to read all companies.
+
     menu_stack.pop_menu()
 
 def list_by_ebitda():
@@ -53,14 +106,19 @@ def list_by_roa():
     menu_stack.pop_menu()
 
 
-menu_stack = MenuStack()
-main_items = [
-    MenuItem("CRUD", show_crud_menu, "CRUD operations"),
-    MenuItem("TOP TEN", show_top_ten_menu, "Show top ten companies by criteria")
-]
+def main():
+    main_items = [
+        MenuItem("CRUD", show_crud_menu, "CRUD operations"),
+        MenuItem("TOP TEN", show_top_ten_menu, "Show top ten companies by criteria")
+    ]
 
-menu_stack.push_menu(main_items, "MAIN")
-menu_stack.run()
+    menu_stack.push_menu(main_items, "MAIN")
+    menu_stack.run()
+
+
+if __name__ == "__main__":
+    menu_stack = MenuStack()
+    main()
 
 
 
