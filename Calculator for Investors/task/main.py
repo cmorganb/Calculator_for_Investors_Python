@@ -23,23 +23,31 @@ def show_top_ten_menu():
     menu_stack.push_menu(top_ten_items, "TOP TEN", )
 
 def create_company():
+    session = get_session()
+
     ticker = input("Enter ticker (in the format 'MOON'):\n")
     name = input("Enter company (in the format 'Moon Corp'):\n")
     sector = input("Enter industries (in the format 'Technology'):\n")
 
-    #call function to add company
+    new_company = Companies(ticker=ticker, name=name, sector=sector)
+    session.add(new_company)
+    session.commit()
 
-    ebitda = input("Enter ebitda (in the format '987654321'):\n")
-    sales = input("Enter sales (in the format '987654321'):\n")
-    net_profit = input("Enter net profit (in the format '987654321'):\n")
-    market_price = input("Enter market price (in the format '987654321'):\n")
-    net_debt = input("Enter net_debt (in the format '987654321'):\n")
-    assets = input("Enter assets (in the format '987654321'):\n")
-    equity = input("Enter equity (in the format '987654321'):\n")
-    cash_equivalents = input("Enter cash equivalents (in the format '987654321'):\n")
-    liabilities = input("Enter liabilities (in the format '987654321'):\n")
+    ebitda = float(input("Enter ebitda (in the format '987654321'):\n"))
+    sales = float(input("Enter sales (in the format '987654321'):\n"))
+    net_profit = float(input("Enter net profit (in the format '987654321'):\n"))
+    market_price = float(input("Enter market price (in the format '987654321'):\n"))
+    net_debt = float(input("Enter net_debt (in the format '987654321'):\n"))
+    assets = float(input("Enter assets (in the format '987654321'):\n"))
+    equity = float(input("Enter equity (in the format '987654321'):\n"))
+    cash_equivalents = float(input("Enter cash equivalents (in the format '987654321'):\n"))
+    liabilities = float(input("Enter liabilities (in the format '987654321'):\n"))
 
-    #call function to add financial data
+    new_financial = Financial(ebitda=ebitda, sales=sales, net_profit=net_profit, market_price=market_price,
+                              net_debt=net_debt, assets=assets, equity=equity, cash_equivalents=cash_equivalents,
+                              liabilities=liabilities)
+    session.add(new_financial)
+    session.commit()
 
     print("Company created successfully!")
 
