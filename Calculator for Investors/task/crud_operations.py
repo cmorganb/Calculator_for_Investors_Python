@@ -44,15 +44,6 @@ def read_company(ticker):
     company_data = session.query(Companies).filter(Companies.ticker == ticker).first()
     financial_data = session.query(Financial).filter(Financial.ticker == ticker).first()
 
-    print(company_data.name)
-    print(f"P/E = {financial_data.market_price / financial_data.net_profit}")
-    print(f"P/S = {financial_data.market_price / financial_data.sales}")
-    print(f"P/B = {financial_data.market_price / financial_data.assets}")
-    print(f"ND/EBITDA = {financial_data.net_debt / financial_data.ebitda}")
-    print(f"ROE = {financial_data.net_profit / financial_data.equity}")
-    print(f"ROA = {financial_data.net_profit / financial_data.assets}")
-    print(f"L/A = {financial_data.liabilities / financial_data.assets}")
-
 
 
 def update_company(ticker, ebitda, sales, net_profit, market_price, net_debt, assets, equity,
