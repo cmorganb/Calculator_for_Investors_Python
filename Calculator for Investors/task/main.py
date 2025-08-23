@@ -13,6 +13,21 @@ def show_crud_menu():
 
     menu_stack.push_menu(crud_items, "CRUD")
 
+def search_company():
+    session = get_session()
+
+    search_term = input("Enter company name:\n")
+
+    results = session.query(Companies).filter(
+        Companies.name.ilike(f'%{search_term}%')
+    ).order_by(Companies.name).all()
+
+    if results:
+        return results
+    else:
+        print("Company not found!")
+        return None
+
 def show_top_ten_menu():
     top_ten_items = [
         MenuItem("ND/EBITDA", list_by_ebitda, "List by ND/EBITDA"),
@@ -63,24 +78,30 @@ def read_company():
     menu_stack.pop_menu()
 
 def update_company():
-    search_term = input("Enter company name:\n")
+    session = get_session()
 
-    #call searching function
-    #display search results menu
+    search_results = search_company()
+    if search_results:
+        for i, company in enumerate(search_results):
+            print(f"{i} {company.name}")
 
-    ebitda = input("Enter ebitda (in the format '987654321'):\n")
-    sales = input("Enter sales (in the format '987654321'):\n")
-    net_profit = input("Enter net profit (in the format '987654321'):\n")
-    market_price = input("Enter market price (in the format '987654321'):\n")
-    net_debt = input("Enter net_debt (in the format '987654321'):\n")
-    assets = input("Enter assets (in the format '987654321'):\n")
-    equity = input("Enter equity (in the format '987654321'):\n")
-    cash_equivalents = input("Enter cash equivalents (in the format '987654321'):\n")
-    liabilities = input("Enter liabilities (in the format '987654321'):\n")
+        selection = int(input("Enter company number:\n"))
 
-    #call function to update financial data
+        ticker = search_results[selection].ticker
+        fin_data = session.get(Financial, ticker)
 
-    print("Company updated successfully!")
+        fin_data.ebitda = float(input("Enter ebitda (in the format '987654321'):\n"))
+        fin_data.sales = float(input("Enter sales (in the format '987654321'):\n"))
+        fin_data.net_profit = float(input("Enter net profit (in the format '987654321'):\n"))
+        fin_data.market_price = float(input("Enter market price (in the format '987654321'):\n"))
+        fin_data.net_debt = float(input("Enter net_debt (in the format '987654321'):\n"))
+        fin_data.assets = float(input("Enter assets (in the format '987654321'):\n"))
+        fin_data.equity = float(input("Enter equity (in the format '987654321'):\n"))
+        fin_data.cash_equivalents = float(input("Enter cash equivalents (in the format '987654321'):\n"))
+        fin_data.liabilities = float(input("Enter liabilities (in the format '987654321'):\n"))
+
+        session.commit()
+        print("Company updated successfully!")
 
     menu_stack.pop_menu()
 
