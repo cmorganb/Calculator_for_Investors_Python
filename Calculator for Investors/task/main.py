@@ -1,5 +1,5 @@
 from menu_stack import MenuItem, MenuStack
-from database import get_session
+from database import get_session_context, create_tables, initialize_db_from_files
 from models import Companies, Financial
 
 def show_crud_menu():
@@ -23,49 +23,46 @@ def show_top_ten_menu():
     menu_stack.push_menu(top_ten_items, "TOP TEN", )
 
 def search_company():
-    session = get_session()
+    with get_session_context() as session:
+        search_term = input("Enter company name:\n")
 
-    search_term = input("Enter company name:\n")
+        results = session.query(Companies).filter(
+            Companies.name.ilike(f'%{search_term}%')
+        ).order_by(Companies.name).all()
 
-    results = session.query(Companies).filter(
-        Companies.name.ilike(f'%{search_term}%')
-    ).order_by(Companies.name).all()
+        if results:
+            for i, company in enumerate(results):
+                print(f"{i} {company.name}")
 
-    if results:
-        for i, company in enumerate(results):
-            print(f"{i} {company.name}")
-
-        selection = int(input("Enter company number:\n"))
-        return results[selection]
-    else:
-        print("Company not found!")
-        return None
+            selection = int(input("Enter company number:\n"))
+            return results[selection]
+        else:
+            print("Company not found!")
+            return None
 
 def create_company():
-    session = get_session()
+    with get_session_context() as session:
+        ticker = input("Enter ticker (in the format 'MOON'):\n")
+        name = input("Enter company (in the format 'Moon Corp'):\n")
+        sector = input("Enter industries (in the format 'Technology'):\n")
 
-    ticker = input("Enter ticker (in the format 'MOON'):\n")
-    name = input("Enter company (in the format 'Moon Corp'):\n")
-    sector = input("Enter industries (in the format 'Technology'):\n")
+        new_company = Companies(ticker=ticker, name=name, sector=sector)
+        session.add(new_company)
 
-    new_company = Companies(ticker=ticker, name=name, sector=sector)
-    session.add(new_company)
+        ebitda = float(input("Enter ebitda (in the format '987654321'):\n"))
+        sales = float(input("Enter sales (in the format '987654321'):\n"))
+        net_profit = float(input("Enter net profit (in the format '987654321'):\n"))
+        market_price = float(input("Enter market price (in the format '987654321'):\n"))
+        net_debt = float(input("Enter net_debt (in the format '987654321'):\n"))
+        assets = float(input("Enter assets (in the format '987654321'):\n"))
+        equity = float(input("Enter equity (in the format '987654321'):\n"))
+        cash_equivalents = float(input("Enter cash equivalents (in the format '987654321'):\n"))
+        liabilities = float(input("Enter liabilities (in the format '987654321'):\n"))
 
-    ebitda = float(input("Enter ebitda (in the format '987654321'):\n"))
-    sales = float(input("Enter sales (in the format '987654321'):\n"))
-    net_profit = float(input("Enter net profit (in the format '987654321'):\n"))
-    market_price = float(input("Enter market price (in the format '987654321'):\n"))
-    net_debt = float(input("Enter net_debt (in the format '987654321'):\n"))
-    assets = float(input("Enter assets (in the format '987654321'):\n"))
-    equity = float(input("Enter equity (in the format '987654321'):\n"))
-    cash_equivalents = float(input("Enter cash equivalents (in the format '987654321'):\n"))
-    liabilities = float(input("Enter liabilities (in the format '987654321'):\n"))
-
-    new_financial = Financial(ebitda=ebitda, sales=sales, net_profit=net_profit, market_price=market_price,
-                              net_debt=net_debt, assets=assets, equity=equity, cash_equivalents=cash_equivalents,
-                              liabilities=liabilities)
-    session.add(new_financial)
-    session.commit()
+        new_financial = Financial(ebitda=ebitda, sales=sales, net_profit=net_profit, market_price=market_price,
+                                  net_debt=net_debt, assets=assets, equity=equity, cash_equivalents=cash_equivalents,
+                                  liabilities=liabilities)
+        session.add(new_financial)
 
     print("Company created successfully!")
 
@@ -86,51 +83,53 @@ def read_company():
     menu_stack.pop_menu()
 
 def update_company():
-    fin_data = search_company()
+    search_results = search_company()
 
-    if fin_data:
-        session = get_session()
-        fin_data.ebitda = float(input("Enter ebitda (in the format '987654321'):\n"))
-        fin_data.sales = float(input("Enter sales (in the format '987654321'):\n"))
-        fin_data.net_profit = float(input("Enter net profit (in the format '987654321'):\n"))
-        fin_data.market_price = float(input("Enter market price (in the format '987654321'):\n"))
-        fin_data.net_debt = float(input("Enter net_debt (in the format '987654321'):\n"))
-        fin_data.assets = float(input("Enter assets (in the format '987654321'):\n"))
-        fin_data.equity = float(input("Enter equity (in the format '987654321'):\n"))
-        fin_data.cash_equivalents = float(input("Enter cash equivalents (in the format '987654321'):\n"))
-        fin_data.liabilities = float(input("Enter liabilities (in the format '987654321'):\n"))
+    if search_results:
+        with get_session_context() as session:
+            fin_data = session.get(Financial, search_results.ticker)  # re-attaching the object to the session
 
-        session.commit()
-        print("Company updated successfully!")
+            fin_data.ebitda = float(input("Enter ebitda (in the format '987654321'):\n"))
+            fin_data.sales = float(input("Enter sales (in the format '987654321'):\n"))
+            fin_data.net_profit = float(input("Enter net profit (in the format '987654321'):\n"))
+            fin_data.market_price = float(input("Enter market price (in the format '987654321'):\n"))
+            fin_data.net_debt = float(input("Enter net_debt (in the format '987654321'):\n"))
+            fin_data.assets = float(input("Enter assets (in the format '987654321'):\n"))
+            fin_data.equity = float(input("Enter equity (in the format '987654321'):\n"))
+            fin_data.cash_equivalents = float(input("Enter cash equivalents (in the format '987654321'):\n"))
+            fin_data.liabilities = float(input("Enter liabilities (in the format '987654321'):\n"))
+
+    print("Company updated successfully!")
 
     menu_stack.pop_menu()
 
 def delete_company():
-    fin_data = search_company()
+    search_result = search_company()
 
-    if fin_data:
-        session = get_session()
-        comp_data = session.get(Companies, fin_data.ticker)
-        session.delete(fin_data)
-        session.delete(comp_data)
-        session.commit()
+    if search_result:
+        with get_session_context() as session:
+            fin_data = session.get(Financial, search_result.ticker)  # re-attaching the object to the session
+            comp_data = session.get(Companies, fin_data.ticker)
+
+            session.delete(fin_data)
+            session.delete(comp_data)
 
         print("Company deleted successfully!")
 
     menu_stack.pop_menu()
 
 def list_all_companies():
-    session = get_session()
-    companies = session.query(Companies).order_by(Companies.ticker).all()
+    with get_session_context() as session:
+        companies = session.query(Companies).order_by(Companies.ticker).all()
 
-    if companies:
-        print("COMPANY LIST")
+        if companies:
+            print("COMPANY LIST")
 
-        for company in companies:
-            print(f"{company.ticker} {company.name}")
+            for company in companies:
+                print(f"{company.ticker} {company.name}")
 
-    else:
-        print("No companies in the database")
+        else:
+            print("No companies in the database")
 
     menu_stack.pop_menu()
 
@@ -148,6 +147,9 @@ def list_by_roa():
 
 
 def main():
+    create_tables()
+    initialize_db_from_files()
+
     main_items = [
         MenuItem("CRUD", show_crud_menu, "CRUD operations"),
         MenuItem("TOP TEN", show_top_ten_menu, "Show top ten companies by criteria")

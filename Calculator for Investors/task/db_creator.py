@@ -70,7 +70,7 @@ def main():
                             fin_dict[col] = None
 
                 fin_obj = Financial(**fin_dict)
-                session.merge(fin_obj)  # Use merge instead of add to handle duplicates
+                session.merge(fin_obj)
 
             session.commit()
             print("Database created successfully!")
