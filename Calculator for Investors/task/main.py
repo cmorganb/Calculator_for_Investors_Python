@@ -28,14 +28,14 @@ def search_company():
 
         results = session.query(Companies).filter(
             Companies.name.ilike(f'%{search_term}%')
-        ).order_by(Companies.name).all()
+        ).all()
 
         if results:
             for i, company in enumerate(results):
                 print(f"{i} {company.name}")
 
             selection = int(input("Enter company number:\n"))
-            return results[selection]
+            return results[selection].ticker
         else:
             print("Company not found!")
             return None
@@ -53,13 +53,13 @@ def create_company():
         sales = float(input("Enter sales (in the format '987654321'):\n"))
         net_profit = float(input("Enter net profit (in the format '987654321'):\n"))
         market_price = float(input("Enter market price (in the format '987654321'):\n"))
-        net_debt = float(input("Enter net_debt (in the format '987654321'):\n"))
+        net_debt = float(input("Enter net debt (in the format '987654321'):\n"))
         assets = float(input("Enter assets (in the format '987654321'):\n"))
         equity = float(input("Enter equity (in the format '987654321'):\n"))
         cash_equivalents = float(input("Enter cash equivalents (in the format '987654321'):\n"))
         liabilities = float(input("Enter liabilities (in the format '987654321'):\n"))
 
-        new_financial = Financial(ebitda=ebitda, sales=sales, net_profit=net_profit, market_price=market_price,
+        new_financial = Financial(ticker=ticker, ebitda=ebitda, sales=sales, net_profit=net_profit, market_price=market_price,
                                   net_debt=net_debt, assets=assets, equity=equity, cash_equivalents=cash_equivalents,
                                   liabilities=liabilities)
         session.add(new_financial)
@@ -69,46 +69,53 @@ def create_company():
     menu_stack.pop_menu()
 
 def read_company():
-    fin_data = search_company()
+    ticker = search_company()
 
-    if fin_data:
-        print(f"P/E = {fin_data.market_price / fin_data.net_profit}")
-        print(f"P/S = {fin_data.market_price / fin_data.sales}")
-        print(f"P/B = {fin_data.market_price / fin_data.assets}")
-        print(f"ND/EBITDA = {fin_data.net_debt / fin_data.EBITDA}")
-        print(f"ROE = {fin_data.net_profit / fin_data.equity}")
-        print(f"ROA = {fin_data.net_profit / fin_data.assets}")
-        print(f"L/A = {fin_data.liabilities / fin_data.assets}")
+    if ticker:
+        with get_session_context() as session:
+            fin_data = session.get(Financial, ticker)
+            comp_data = session.get(Companies, ticker)
+
+            if fin_data:
+                print(f"{comp_data.ticker} {comp_data.name}")
+                print(f"P/E = {divide_indicators(fin_data.market_price, fin_data.net_profit)}")
+                print(f"P/S = {divide_indicators(fin_data.market_price, fin_data.sales)}")
+                print(f"P/B = {divide_indicators(fin_data.market_price, fin_data.assets)}")
+                print(f"ND/EBITDA = {divide_indicators(fin_data.net_debt, fin_data.ebitda)}")
+                print(f"ROE = {divide_indicators(fin_data.net_profit, fin_data.equity)}")
+                print(f"ROA = {divide_indicators(fin_data.net_profit, fin_data.assets)}")
+                print(f"L/A = {divide_indicators(fin_data.liabilities, fin_data.assets)}")
 
     menu_stack.pop_menu()
 
 def update_company():
-    search_results = search_company()
+    ticker = search_company()
 
-    if search_results:
+    if ticker:
         with get_session_context() as session:
-            fin_data = session.get(Financial, search_results.ticker)  # re-attaching the object to the session
+            fin_data = session.get(Financial, ticker)  # re-attaching the object to the session
 
-            fin_data.ebitda = float(input("Enter ebitda (in the format '987654321'):\n"))
-            fin_data.sales = float(input("Enter sales (in the format '987654321'):\n"))
-            fin_data.net_profit = float(input("Enter net profit (in the format '987654321'):\n"))
-            fin_data.market_price = float(input("Enter market price (in the format '987654321'):\n"))
-            fin_data.net_debt = float(input("Enter net_debt (in the format '987654321'):\n"))
-            fin_data.assets = float(input("Enter assets (in the format '987654321'):\n"))
-            fin_data.equity = float(input("Enter equity (in the format '987654321'):\n"))
-            fin_data.cash_equivalents = float(input("Enter cash equivalents (in the format '987654321'):\n"))
-            fin_data.liabilities = float(input("Enter liabilities (in the format '987654321'):\n"))
+            if fin_data:
+                fin_data.ebitda = float(input("Enter ebitda (in the format '987654321'):\n"))
+                fin_data.sales = float(input("Enter sales (in the format '987654321'):\n"))
+                fin_data.net_profit = float(input("Enter net profit (in the format '987654321'):\n"))
+                fin_data.market_price = float(input("Enter market price (in the format '987654321'):\n"))
+                fin_data.net_debt = float(input("Enter net debt (in the format '987654321'):\n"))
+                fin_data.assets = float(input("Enter assets (in the format '987654321'):\n"))
+                fin_data.equity = float(input("Enter equity (in the format '987654321'):\n"))
+                fin_data.cash_equivalents = float(input("Enter cash equivalents (in the format '987654321'):\n"))
+                fin_data.liabilities = float(input("Enter liabilities (in the format '987654321'):\n"))
 
-    print("Company updated successfully!")
+                print("Company updated successfully!")
 
     menu_stack.pop_menu()
 
 def delete_company():
-    search_result = search_company()
+    ticker = search_company()
 
-    if search_result:
+    if ticker:
         with get_session_context() as session:
-            fin_data = session.get(Financial, search_result.ticker)  # re-attaching the object to the session
+            fin_data = session.get(Financial, ticker)  # re-attaching the object to the session
             comp_data = session.get(Companies, fin_data.ticker)
 
             session.delete(fin_data)
@@ -126,7 +133,7 @@ def list_all_companies():
             print("COMPANY LIST")
 
             for company in companies:
-                print(f"{company.ticker} {company.name}")
+                print(f"{company.ticker} {company.name} {company.sector}")
 
         else:
             print("No companies in the database")
@@ -145,6 +152,13 @@ def list_by_roa():
     print("Not implemented!")
     menu_stack.pop_menu()
 
+def divide_indicators(a, b):
+    try:
+        division = a / b
+        return round(division, 2)
+    except TypeError or ValueError or ZeroDivisionError:
+        return None
+
 
 def main():
     create_tables()
@@ -155,6 +169,7 @@ def main():
         MenuItem("TOP TEN", show_top_ten_menu, "Show top ten companies by criteria")
     ]
 
+    print("Welcome to the Investor Program!")
     menu_stack.push_menu(main_items, "MAIN")
     menu_stack.run()
 
