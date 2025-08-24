@@ -15,7 +15,7 @@ def show_crud_menu():
 
 def show_top_ten_menu():
     top_ten_items = [
-        MenuItem("ND/EBITDA", list_by_ebitda, "List by ND/EBITDA"),
+        MenuItem("ND/EBITDA", list_by_nd_ebitda, "List by ND/EBITDA"),
         MenuItem("ROE", list_by_roe, "List by ROE"),
         MenuItem("ROA", list_by_roa, "List by ROA")
     ]
@@ -78,13 +78,13 @@ def read_company():
 
             if fin_data:
                 print(f"{comp_data.ticker} {comp_data.name}")
-                print(f"P/E = {divide_indicators(fin_data.market_price, fin_data.net_profit)}")
-                print(f"P/S = {divide_indicators(fin_data.market_price, fin_data.sales)}")
-                print(f"P/B = {divide_indicators(fin_data.market_price, fin_data.assets)}")
-                print(f"ND/EBITDA = {divide_indicators(fin_data.net_debt, fin_data.ebitda)}")
-                print(f"ROE = {divide_indicators(fin_data.net_profit, fin_data.equity)}")
-                print(f"ROA = {divide_indicators(fin_data.net_profit, fin_data.assets)}")
-                print(f"L/A = {divide_indicators(fin_data.liabilities, fin_data.assets)}")
+                print(f"P/E = {fin_data.p_e()}")
+                print(f"P/S = {fin_data.p_s()}")
+                print(f"P/B = {fin_data.p_b()}")
+                print(f"ND/EBITDA = {fin_data.nd_ebitda}")
+                print(f"ROE = {fin_data.roe}")
+                print(f"ROA = {fin_data.roa}")
+                print(f"L/A = {fin_data.l_a()}")
 
     menu_stack.pop_menu()
 
@@ -140,24 +140,44 @@ def list_all_companies():
 
     menu_stack.pop_menu()
 
-def list_by_ebitda():
-    print("Not implemented!")
+def list_by_nd_ebitda():
+    with get_session_context() as session:
+        top_nd_ebitda = (session.query(Financial)
+                         .filter(Financial.equity != 0)
+                         .order_by(Financial.nd_ebitda.desc())
+                         .limit(10)
+                         .all())
+
+        for company in top_nd_ebitda:
+            print(f"{company.ticker} {company.nd_ebitda}")
+
     menu_stack.pop_menu()
 
 def list_by_roe():
-    print("Not implemented!")
+    with get_session_context() as session:
+        top_roe = (session.query(Financial)
+                         .filter(Financial.equity != 0)
+                         .order_by(Financial.roe.desc())
+                         .limit(10)
+                         .all())
+
+        for company in top_roe:
+            print(f"{company.ticker} {company.roe}")
+
     menu_stack.pop_menu()
 
 def list_by_roa():
-    print("Not implemented!")
-    menu_stack.pop_menu()
+    with get_session_context() as session:
+        top_roa = (session.query(Financial)
+                         .filter(Financial.equity != 0)
+                         .order_by(Financial.roa.desc())
+                         .limit(10)
+                         .all())
 
-def divide_indicators(a, b):
-    try:
-        division = a / b
-        return round(division, 2)
-    except TypeError or ValueError or ZeroDivisionError:
-        return None
+        for company in top_roa:
+            print(f"{company.ticker} {company.roa:.2f}")
+
+    menu_stack.pop_menu()
 
 
 def main():
