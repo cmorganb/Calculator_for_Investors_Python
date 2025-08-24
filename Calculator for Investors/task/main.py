@@ -78,13 +78,13 @@ def read_company():
 
             if fin_data:
                 print(f"{comp_data.ticker} {comp_data.name}")
-                print(f"P/E = {fin_data.p_e()}")
-                print(f"P/S = {fin_data.p_s()}")
-                print(f"P/B = {fin_data.p_b()}")
-                print(f"ND/EBITDA = {fin_data.nd_ebitda}")
-                print(f"ROE = {fin_data.roe}")
-                print(f"ROA = {fin_data.roa}")
-                print(f"L/A = {fin_data.l_a()}")
+                print(f"P/E = {display_indicator(fin_data.p_e())}")
+                print(f"P/S = {display_indicator(fin_data.p_s())}")
+                print(f"P/B = {display_indicator(fin_data.p_b())}")
+                print(f"ND/EBITDA = {display_indicator(fin_data.nd_ebitda)}")
+                print(f"ROE = {display_indicator(fin_data.roe)}")
+                print(f"ROA = {display_indicator(fin_data.roa)}")
+                print(f"L/A = {display_indicator(fin_data.l_a())}")
 
     menu_stack.pop_menu()
 
@@ -149,7 +149,7 @@ def list_by_nd_ebitda():
                          .all())
 
         for company in top_nd_ebitda:
-            print(f"{company.ticker} {company.nd_ebitda}")
+            print(f"{company.ticker} {display_indicator(company.nd_ebitda)}")
 
     menu_stack.pop_menu()
 
@@ -162,7 +162,7 @@ def list_by_roe():
                          .all())
 
         for company in top_roe:
-            print(f"{company.ticker} {company.roe}")
+            print(f"{company.ticker} {display_indicator(company.roe)}")
 
     menu_stack.pop_menu()
 
@@ -175,10 +175,15 @@ def list_by_roa():
                          .all())
 
         for company in top_roa:
-            print(f"{company.ticker} {company.roa:.2f}")
+            print(f"{company.ticker} {display_indicator(company.roa)}")
 
     menu_stack.pop_menu()
 
+def display_indicator(indicator):
+    if indicator:
+        return(indicator, 2)
+
+    return None
 
 def main():
     create_tables()

@@ -31,40 +31,40 @@ class Financial(Base):
 
     def p_e(self):
         if self.market_price and self.net_profit and self.net_profit != 0:
-            return round(self.market_price / self.net_profit, 2)
+            return self.market_price / self.net_profit
         return None
 
     def p_s(self):
         if self.market_price and self.sales and self.sales != 0:
-            return round(self.market_price / self.sales, 2)
+            return self.market_price / self.sales
         return None
 
     def p_b(self):
         if self.market_price and self.assets and self.assets != 0:
-            return round(self.market_price / self.assets, 2)
+            return self.market_price / self.assets
         return None
 
     @hybrid_property
     def nd_ebitda(self):
         if self.ebitda and self.net_debt and self.ebitda != 0:
-            return round(self.net_debt / self.ebitda, 2)
+            return self.net_debt / self.ebitda
         return None
 
     @hybrid_property
     def roe(self):
         if self.equity and self.net_profit and self.equity != 0:
-            return round(self.net_profit / self.equity, 2)
+            return self.net_profit / self.equity
         return None
 
     @hybrid_property
     def roa(self):
         if self.assets and self.net_profit and self.assets != 0:
-            return round(self.net_profit / self.assets, 2)
+            return self.net_profit / self.assets
         return None
 
     def l_a(self):
         if self.assets and self.liabilities and self.assets != 0:
-            return round(self.liabilities / self.assets, 2)
+            return self.liabilities / self.assets
         return None
 
 
